@@ -18,5 +18,39 @@ start_url = 'http://www.owlsolution.co.kr:8080'
 browser.get(start_url)
 browser.maximize_window()
 
-body = browser.find_element_by_tag_name('body')
-time.sleep(5)
+elem1 = browser.find_element_by_id("loginForm1")
+elem1.clear()
+elem1.send_keys("jjko@wisestone.kr")
+
+elem2 = browser.find_element_by_id("loginForm2")
+elem2.clear()
+elem2.send_keys("wowjddl!@34")
+
+print("find elemLogin-Start")
+time.sleep(1)
+
+for elemLogin in browser.find_elements_by_xpath('.//span[@class="ng-scope"]'):
+    print(elemLogin.text)
+    if elemLogin.text == "로그인":
+        elemLogin.click()
+        break
+
+browser.implicitly_wait(1)
+
+print("find elemIssueMgmt-Start")
+time.sleep(1)
+
+for elemIssueMgmt in browser.find_elements_by_xpath('.//span[@class="ng-scope"]'):
+    print(elemIssueMgmt.text)
+    if elemIssueMgmt.text == "이슈 관리":
+        elemIssueMgmt.click()
+        break
+
+#issue_url = 'http://www.owlsolution.co.kr:8080/#/issues/issueList/'
+#browser.get(issue_url)
+
+#browser.find_element_by_xpath("//span[contains(@class, 'ng-scope')]").click()
+
+#browser.find_element_by_class_name("ng-scope").click()
+
+time.sleep(1)
