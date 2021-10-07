@@ -1,10 +1,21 @@
 import datetime as dt
 import time
+import chromedriver_autoinstaller
 
 from selenium import webdriver
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+
+chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0] #크롬드라이버 버전 확인
+
+try:
+    driver = webdriver.Chrome(f'./{chrome_ver}/chromedriver.exe')
+except:
+    chromedriver_autoinstaller.install(True)
+    driver = webdriver.Chrome(f'./{chrome_ver}/chromedriver.exe')
+
+driver.implicitly_wait(10)
 
 def FindnClick_span_by_xpath(driver, xpath, text):
     for elem in driver.find_elements_by_xpath(xpath):
@@ -37,7 +48,7 @@ elem2.send_keys("wowjddl!@34")
 time.sleep(1)
 print("find 로그인-Start")
 FindnClick_span_by_xpath(browser, './/span[@class="ng-scope"]', '로그인')
-#browser.implicitly_wait(2)
+browser.implicitly_wait(2)
 
 time.sleep(1)
 print("find 이슈 관리-Start")
