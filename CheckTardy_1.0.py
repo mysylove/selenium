@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 import time
 import chromedriver_autoinstaller
@@ -18,6 +19,7 @@ from html_table_parser import parser_functions as parser
 chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0] #크롬드라이버 버전 확인
 
 options = webdriver.ChromeOptions()
+options.add_argument("headless")
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_experimental_option("detach", True)
 
@@ -38,25 +40,28 @@ def FindnClick_span_by_xpath(driver, xpath, text):
             break
 
 def ParseTardyInfo(driver):
-    time.sleep(1)
-    result_html = driver.page_source
-    result_soup = BeautifulSoup(result_html, 'html.parser')
-    tags = result_soup.find_all("table", attrs={"class":"data data4 eff1"})[0]
+    try:
+        time.sleep(1)
+        result_html = driver.page_source
+        result_soup = BeautifulSoup(result_html, 'html.parser')
+        tags = result_soup.find_all("table", attrs={"class":"data data4 eff1"})[0]
 
-    html_table = parser.make2d(tags)
+        html_table = parser.make2d(tags)
 
-    df = pd.DataFrame(html_table[1:], columns=html_table[0])
-    #print(df.head())
-    dtToday = datetime.today().strftime('%d')
-    strCol0 = "정렬변경"
-    #print(df[dtToday])
-    for i in range(1, len(df[dtToday]), 3):
-        if df[dtToday][i] == "00:00":
-            if df[dtToday][i+2] == "출근전":
-                print(df[strCol0][i], df[dtToday][i+2], df[dtToday][i])
-        elif df[dtToday][i] > "08:45":
-            if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전":
-                print(df[strCol0][i], "지각", df[dtToday][i])
+        df = pd.DataFrame(html_table[1:], columns=html_table[0])
+        #print(df.head())
+        dtToday = datetime.today().strftime('%d')
+        strCol0 = "정렬변경"
+        #print(df[dtToday])
+        for i in range(1, len(df[dtToday]), 3):
+            if df[dtToday][i] == "00:00":
+                if df[dtToday][i+2] == "출근전":
+                    print(df[strCol0][i], df[dtToday][i+2], df[dtToday][i])
+            elif df[dtToday][i] > "08:45":
+                if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전":
+                    print(df[strCol0][i], "지각", df[dtToday][i])
+    except:
+        print("Exception: ParseTardyInfo")
 
 start_url = 'http://g.wisestone.kr'
 browser.get(start_url)
@@ -94,6 +99,7 @@ if elem1 != "":
     elem1.click()
 browser.switch_to.parent_frame()
 time.sleep(1)
+print("3: Move Page")
 
 # 근태관리 화면 > 소속출근기록 클릭
 browser.switch_to.frame("leftmenuWrap")
@@ -103,29 +109,34 @@ if elem2 != "":
     elem2.click()
 browser.switch_to.parent_frame()
 time.sleep(1)
-print("3: Move Page")
 
 # 월별 근태 테이블이 위치한 iframe의 src 값 추출
 src1 = WebDriverWait(browser, 20).until(EC.visibility_of_element_located((By.XPATH, "//div[@id='contents']/iframe[@src]"))).get_attribute("src")
+print("4: Start Parsing tardy data...")
 
 # 월별 근태 테이블 접근(1페이지)
 browser.switch_to.frame("contentsWrap")
 ParseTardyInfo(browser)
-print("4-1: Parsing Table-1")
 
 # 2페이지로 이동
 elem3 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, """//*[@id="container"]/div[2]/div[2]/a[1]""")))
 elem3.click()
 ParseTardyInfo(browser)
-print("4-2: Parsing Table-2")
 
 # 3페이지로 이동
 elem4 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, """//*[@id="container"]/div[2]/div[2]/a[3]""")))
 elem4.click()
 ParseTardyInfo(browser)
-print("4-3: Parsing Table-3")
+print("")
+
+# 프로그램 종료 처리
+browser.close()
+browser.quit()
+print("End check tardy")
 
 while 1:
     a = input("종료를 위하여 q를 입력하세요.")
     if a == 'q':
         break
+
+sys.exit()
