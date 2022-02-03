@@ -352,7 +352,7 @@ class MyApp(QWidget):
 
             df = pd.DataFrame(html_table[1:], columns=html_table[0])
             #print(df.head())
-            dtToday = datetime.today().strftime('%d')
+            dtToday = str(int(datetime.today().strftime('%d')))
             strCol0 = "정렬변경"
             #print(df[dtToday])
             for i in range(1, len(df[dtToday]), 3):

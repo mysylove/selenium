@@ -50,9 +50,11 @@ def ParseTardyInfo(driver):
 
         df = pd.DataFrame(html_table[1:], columns=html_table[0])
         #print(df.head())
-        dtToday = datetime.today().strftime('%d')
+        dtToday = str(int(datetime.today().strftime('%d')))
         strCol0 = "정렬변경"
-        #print(df[dtToday])
+        #with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+        #    print(df)
+        #print(df['3'])
         for i in range(1, len(df[dtToday]), 3):
             if df[dtToday][i] == "00:00":
                 if df[dtToday][i+2] == "출근전":
@@ -87,6 +89,12 @@ if elemloginId != "":
 else:
     print("main")
 print("2: Login Complete!")
+
+'''
+browser.switch_to.frame("popupframe")
+time.sleep(1)
+elem0 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "")))
+'''
 
 browser.switch_to.frame("contentsWrap")
 time.sleep(1)
