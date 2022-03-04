@@ -60,7 +60,7 @@ def ParseTardyInfo(driver):
                 if df[dtToday][i+2] == "출근전":
                     print(df[strCol0][i], df[dtToday][i+2], df[dtToday][i])
             elif df[dtToday][i] > "08:45":
-                if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전":
+                if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전" or df[dtToday][i+2] == "지각":
                     print(df[strCol0][i], "지각", df[dtToday][i])
     except:
         print("Exception: ParseTardyInfo")
@@ -90,11 +90,20 @@ else:
     print("main")
 print("2: Login Complete!")
 
-'''
-browser.switch_to.frame("popupframe")
-time.sleep(1)
-elem0 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "")))
-'''
+try:
+    element = browser.find_element_by_id("popupframe") #iframe 태그 엘리먼트 찾기
+    if element != "":
+        browser.switch_to.frame(element) #프레임 이동
+        #browser.switch_to.frame("popupframe")
+        time.sleep(1)
+        elem0 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='no_today']")))
+        if elem0 != "":
+            elem0.click()
+            browser.switch_to.parent_frame()
+        time.sleep(1)
+        print("2-1: End Popup")
+except:
+    browser.switch_to.parent_frame()
 
 browser.switch_to.frame("contentsWrap")
 time.sleep(1)
