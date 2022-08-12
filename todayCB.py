@@ -92,6 +92,13 @@ class MyApp(QWidget):
         self.text_edit_1 = QTextEdit(self)
         self.text_edit_1.setGeometry(200, 70, 500, 100)
 
+        self.label_4 = QLabel("OWL 윈도우 창 이름", self)
+        self.label_4.move(10, 180)
+
+        self.text_edit_2 = QTextEdit(self)
+        self.text_edit_2.setGeometry(130, 175, 200, 25)
+        self.text_edit_2.setText("OWL ITS v4.0.26 - Chrome")
+
         self.setWindowTitle('OWL Semi-Auto Write')
         self.setGeometry(300, 700, 900, 300)
         self.show()
@@ -100,7 +107,8 @@ class MyApp(QWidget):
         strToday = datetime.today().strftime("%Y-%m-%d")  # YYYY/mm/dd HH:MM:SS 형태의 시간 출
         strTodayOWL = "[" + strToday + " 고재정]" 
 
-        self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        #self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        self.MySetFocusWindowWithTitle(self.text_edit_2.toPlainText())
 
         time.sleep(1)
         pyautogui.hotkey('ctrl', 'home')
@@ -115,7 +123,8 @@ class MyApp(QWidget):
         strToday = datetime.today().strftime("%Y-%m-%d")  # YYYY/mm/dd HH:MM:SS 형태의 시간 출
         strTodayOWL = "[" + strToday + " 고재정]" 
 
-        self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        #self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        self.MySetFocusWindowWithTitle(self.text_edit_2.toPlainText())
 
         time.sleep(1)
         strPaste = clipboard.paste()
@@ -161,7 +170,13 @@ class MyApp(QWidget):
         pyautogui.hotkey('alt', 'a')
         pyautogui.press('enter')
         '''
-        strFind = '직접인건비'
+        strFind = 'TeCeL-STC-'
+        pos = xl.find(strFind) + len(strFind)
+        nPosStart = pos+4
+        nPosEnd = pos+8
+        strGNum = xl[nPosStart:nPosEnd]
+
+        strFind = '시험소요일'
         pos = xl.find(strFind) + len(strFind)
         while xl[pos].isspace():
             pos = pos + 1
@@ -203,9 +218,10 @@ class MyApp(QWidget):
 
         strToday = datetime.today().strftime("%Y-%m-%d")  # YYYY/mm/dd HH:MM:SS 형태의 시간 출
         strTodayOWL = "[" + strToday + " 고재정]" 
-        strEst = strTodayOWL + ' 견적 발행' + '\n' + 'ㅇ ' + strTestDays + '일 ' + strDiscount + ' 할인 적용 ' + strTotalMoney + '; 가일정 : '
+        strEst = strTodayOWL + ' 견적 발행(' + strGNum + ')' + '\n' + 'ㅇ ' + strTestDays + '일 ' + strDiscount + ' 할인 적용 ' + strTotalMoney + '; 가일정 : '
 
-        self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        #self.MySetFocusWindowWithTitle('OWL ITS - Chrome')
+        self.MySetFocusWindowWithTitle(self.text_edit_2.toPlainText())
 
         time.sleep(1)
         pyautogui.hotkey('ctrl', 'home')
@@ -236,7 +252,7 @@ class MyApp(QWidget):
         chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0] #크롬드라이버 버전 확인
 
         options = webdriver.ChromeOptions()
-        options.add_argument("headless")
+        #options.add_argument("headless")
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         options.add_experimental_option("detach", True)
 
@@ -250,9 +266,8 @@ class MyApp(QWidget):
 
         start_url = 'http://g.wisestone.kr'
         browser.get(start_url)
-        browser.minimize_window()##maximize_window()
+        #browser.minimize_window()##maximize_window()
         self.text_edit_1.append("1: Start Chrome browser") #print("1: Start Chrome browser")
-
 
         # 로그인 화면 인지 메인화면인지 구분
         elemloginId = browser.find_element_by_id("emp_no")
@@ -272,6 +287,21 @@ class MyApp(QWidget):
         else:
             print("main")
         self.text_edit_1.append("2: Login Complete!") #print("2: Login Complete!")
+
+        try:
+            element = browser.find_element_by_id("popupframe") #iframe 태그 엘리먼트 찾기
+            if element != "":
+                browser.switch_to.frame(element) #프레임 이동
+                #browser.switch_to.frame("popupframe")
+                time.sleep(1)
+                elem0 = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='no_today']")))
+                if elem0 != "":
+                    elem0.click()
+                    browser.switch_to.parent_frame()
+                time.sleep(1)
+                print("2-1: End Popup")
+        except:
+            browser.switch_to.parent_frame()
 
         browser.switch_to.frame("contentsWrap")
         time.sleep(1)
@@ -361,7 +391,7 @@ class MyApp(QWidget):
                         strLog = df[strCol0][i] + " " + df[dtToday][i+2] + " " + df[dtToday][i]
                         self.text_edit_1.append(strLog) #print(df[strCol0][i], df[dtToday][i+2], df[dtToday][i])
                 elif df[dtToday][i] > "08:45":
-                    if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전":
+                    if df[dtToday][i+2] == "정상출근" or df[dtToday][i+2] == "출근전" or df[dtToday][i+2] == "지각":
                         strLog = df[strCol0][i] + " " + "지각" + " " + df[dtToday][i]
                         self.text_edit_1.append(strLog) #print(df[strCol0][i], "지각", df[dtToday][i])
         except:
